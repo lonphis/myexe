@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>将js代码转换为图片</title>
+<style>
+.wrap{width:80%; margin:0 auto;text-align:center;}
+textarea{width:400px; height:200px;}
+</style>
+</head>
+<body>
+	<div class="wrap">
+		<div class="mycode">
+			<h2>代码</h2>
+			<textarea name="code" id="code" cols="30" rows="10"></textarea>
+		</div>
+		<div class="mycanvas">
+			<h2>画布</h2>
+			<canvas id="demo" width="400" height="200">
+				sorry,your browzer don't support the canvas!
+			</canvas>
+		</div>
+		<div class="bt">
+			<button id="code-to-pic">转换为图片</button>
+			<button id="pic-to-code">转换为代码</button>
+			<button id="dataurl">获取dataurl</button>
+			<input type="file" name="file" id="image-to-canvas">		
+		</div>
+	</div>
+<script type="text/javascript" src="js/lonphis.js"></script>
+<script type="text/javascript">
+/**
+*将代码转换为canvas图片
+**/
+function CodeChange(canvasName){
+	var canvas  = document.getElementById(canvasName),
+			ct = canvas.getContext('2d'),
+			width = height =0;
+	//将代码转换为像素
+	function codeToImage(code){
+			var ImageData, code, length, pixls;
+			//计算图片的长宽
+			width = height = Math.ceil(Math.sqrt(code.length/3));
+			//创建dataImage,并赋值
+			ImageData = ct.createImageData(width, height);
+			//将代码转换为10进制代码,构建像素数组[(r,g,b,a),...]
+			code = LONG.stringToHex(code).split(',');
+			length = code.length;
+			pixls = width * height * 4;
+			for( var i = j = 0,data = ImageData.data; i < pixls; i++, j++){
+				if ((i+1)%4 == 0) {
+					data[i] = 255;
+					i++;
+				}
+				if(j < length) {
+					data[i] = code[j];
+				}
+			}
+			//填充画布
+			//console.log(data);
+			ct.putImageData(ImageData, 0, 0);
+	}
+//将图片像素转化为代码
+	function imageToCode(){
+		var imageData = ct.getImageData( 0 , 0, width, height),
+				code = '';
+		for (var i =0, data = imageData.data,length = data.length; i < length; i++) {
+			if((i+1) % 4 == 0){
+				continue;
+			}
+			//将空像素过滤并转码
+			code = code + (data[i] != 0 ? LONG.hexToString(data[i]) : '');
+		}
+		console.log(code);
+		return code;
+	}
+	//将代码图片生成durldata
+	function toDataURL(){
+		var dataURL = canvas.toDataURL("image/jpeg", 1.0);
+		return dataURL;
+	}
+	//读取显示图片至canvas
+	function readPicToCanvas(source){
+		var file = source.files[0];
+		if(window.FileReader) {  
+			var fr = new FileReader();
+			fr.onload = function(e) {
+				var img = new Image();
+				img.onload = function(){
+					canvas.width = this.width;
+					canvas.height = this.height;
+					ct.drawImage(this,0,0);
+				};
+				img.src = e.target.result;
+			};
+			fr.readAsDataURL(file);  
+		}
+	}
+	return {"codeToImage":codeToImage,"imageToCode":imageToCode,
+					"readPicToCanvas":readPicToCanvas,'toDataURL':toDataURL}
+}
+</script>
+<script type="text/javascript">
+var bt1 = document.getElementById('code-to-pic'),
+		bt2 = document.getElementById('pic-to-code'),
+		bt3 = document.getElementById('image-to-canvas'),
+		bt4 = document.getElementById('dataurl'),
+		code = document.getElementById('code'),
+		cc = CodeChange('demo');
+bt1.onclick = function(){
+	cc.codeToImage(code.value);
+	code.value = '';
+};
+bt2.onclick = function(){
+	code.value = cc.imageToCode();
+};
+bt3.onchange = function(){
+	cc.readPicToCanvas(this);
+};
+bt4.onclick = function(){
+	code.value = cc.toDataURL();
+}
+</script>
+</body>
+</html>

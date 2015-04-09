@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>canvas绘图</title>
+	<style>
+	.wrap{margin:0 auto;width:90%;}
+	h2{text-align:center;}
+	#cv{margin:0 auto;}
+	</style>
+</head>
+<body>
+<div class="wrap">
+	<h2>canvas绘图</h2>
+	<canvas id="cv" width="300" height="300"></canvas>	
+</div>
+<script>
+var MyCanvas = function(g, undefined){
+	var myCanvas = function (id){
+		var canvas = document.getElementById('cv');
+		this.context = canvas.getContext('2d');
+	}
+
+	var fn = myCanvas.prototype = {
+		constructor:myCanvas,
+	};
+	fn.drawRect = function (style){
+		var ct = this.context,style = style || {},
+				top = left = 0,width = height = 20;
+		ct.fillStyle = style.fillStyle || "red";
+		ct.strokeStyle = style.strokeStyle || "blue";
+		ct.fillRect(top,left,width,height);
+	}
+
+	fn.drawArc = function (style){
+		var ct = this.context,style = style || {},
+				top = left = 20, start = 0,end = Math.PI*2, radius = 20;
+		ct.fillStyle = style.fillStyle || "rgba(0,255,0,0.25)";
+		ct.strokeStyle = style.strokeStyle || "blue";
+		ct.beginPath();
+    ct.arc(top, left, radius, start, end, true);
+    ct.closePath();
+    ct.fill();
+  }
+
+  fn.drawImage = function(src){
+  	var ct = this.context,image = new Image();
+    image.src = src;
+    image.onload = function () {
+       context.drawImage(image,0,0);
+    }
+  }
+	return myCanvas;
+}(window);
+
+//test
+var mycs = new MyCanvas('cv');
+//mycs.drawRect({fillStyle:'red',strokeStyle:'blue'});
+//mycs.drawArc();
+mycs.drawImage('image/1.jpg');
+</script>
+</body>
+</html>

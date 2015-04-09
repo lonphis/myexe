@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>observer mode</title>
+</head>
+<body>
+<script>
+function makePublisher(o) {
+	//define a object of publisher
+	var publisher = {
+		subscribers: {
+			//eventType: subscribers
+			any: [],
+			click: []
+		},
+		//add the event,type can be in form of "click1 click2 click3"
+		subscribe: function (type, fn) {
+			if(typeof type == 'function') {
+				fn = type;
+				type = 'any';
+			}
+			typeArray = type.trim().split(/\s+/);
+			for(var i= 0, length= typeArray.length; i < length; i++){
+				if (typeof this.subscribers[typeArray[i]] === "undefined"){
+					this.subscribers[typeArray[i]] = [];			
+				}
+				this.subscribers[typeArray[i]].push(fn);
+			}
+		},
+		unsubscribe: function (type,fn) {
+			if(typeof type === 'function') {
+				fn = type;
+				type = 'any';
+			}
+			this.visitSubscribers('unsubscribe', fn, type);
+		},
+		publish: function (publishment, type){
+			this.visitSubscribers('publish', publishment, type);
+		},
+		visitSubscribers: function (action, arg, type){
+			var subtype = type || 'any',
+					subscribers = this.subscribers[subtype],
+					i,
+					max = subscribers.length;
+			for (i= 0; i < max; i += 1){
+				if (action === 'publish'){
+					subscribers[i](arg);
+				}else {
+					if (subscribers[i] === arg) {
+						subscribers.splice(i,1);
+					}
+				}
+			}
+		}
+	};
+	//copy the attributes of publisher to the o 
+	var i;
+	for (i in publisher) {
+		if (publisher.hasOwnProperty(i) && typeof publisher[i] === "function")
+			o[i] = publisher[i];
+	}
+	o.subscribers = {any:[]};
+}
+</script>
+<script>
+	//define the publisher 
+var paper = {
+	daily:function(){
+		this.publish("big news today")
+	},
+	monthly: function () {
+		this.publish("interesting analysis", "monthly")
+	}
+};
+//define the subscriber
+var joe = {
+	drinkCoffee: function (paper) {
+		console.log('just read' + paper);
+	},
+	sundayPreNap: function (monthly) {
+		console.log('about to fall asleep reading this' + monthly);
+	}
+}
+//make paper be the publisher
+makePublisher(paper);
+//joe subscribe something that provided by paper
+paper.subscribe(joe.drinkCoffee);
+paper.subscribe('monthly',joe.sundayPreNap);
+//publish something
+paper.daily();
+paper.monthly();
+</script>
+</body>
+</html>

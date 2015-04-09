@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>设置主页和添加收藏代码</title>
+</head>
+<body>
+<a href="javascript:void(0)" onclick="setHomepage()">设为首页</a> | <a href="javascript:void(0)" onclick="addCookie()">加入收藏</a>
+<!--/设为首页 加入收藏 兼容Firefox IE-->
+<script language="javascript" type="text/javascript">
+function addCookie() {　 // 加入收藏
+	if (document.all) {
+			window.external.addFavorite('http://www.w3cmark.com', '前端笔记网)');
+	}else if (window.sidebar) {
+	　　window.sidebar.addPanel('前端笔记网','http://www.w3cmark.com', "");
+	}
+}　　　　　　　
+function setHomepage() {　 // 设为首页
+	if (document.all) {
+		document.body.style.behavior = 'url(#default#homepage)';
+		document.body.setHomePage('http://www.sucaiweb.com');
+	}else if (window.sidebar) {
+	　if (window.netscape) {
+			try {
+				netscape.security.PrivilegeManager.enablePrivilege("UniversalXPConnect");
+			}catch (e) {
+				alert("该操作被浏览器拒绝，假如想启用该功能，请在地址栏内输入 about:config,然后将项 signed.applets.codebase_principal_support 值该为true");
+			}
+	}
+		var prefs = Components.classes['@mozilla.org/preferences-service;1'].getService(Components.interfaces.nsIPrefBranch);
+		prefs.setCharPref('browser.startup.homepage','http://www.w3cmark.com');
+	}　　　　　　　
+}
+
+</script>
+</body>
+</html>
